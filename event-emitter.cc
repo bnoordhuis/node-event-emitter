@@ -43,21 +43,12 @@ Handle<Value> Emitter::New(const Arguments& args) {
 Handle<Value> Emitter::Ping(const Arguments& args) {
   HandleScope scope;
 
-  Local<Value> emit_v = args.This()->Get(String::NewSymbol("emit"));
-  assert(emit_v->IsFunction());
-  Local<Function> emit_f = emit_v.As<Function>();
-
   Handle<Value> argv[2] = {
     String::New("ping"), // event name
     args[0]->ToString()  // argument
   };
 
-  TryCatch tc;
-
-  emit_f->Call(args.This(), 2, argv);
-
-  if (tc.HasCaught())
-    FatalException(tc);
+  MakeCallback(args.This(), "emit", 2, argv);
 
   return Undefined();
 }
