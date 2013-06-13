@@ -20,8 +20,6 @@
 using namespace v8;
 using namespace node;
 
-namespace {
-
 struct Emitter: ObjectWrap {
   static Handle<Value> New(const Arguments& args);
   static Handle<Value> Ping(const Arguments& args);
@@ -65,4 +63,4 @@ extern "C" void init(Handle<Object> target) {
   target->Set(String::NewSymbol("Emitter"), t->GetFunction());
 }
 
-} // anonymous namespace
+NODE_MODULE(event_emitter, init)

@@ -14,7 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-var Emitter = require('./event-emitter').Emitter;
+var Emitter = require(__dirname + '/event_emitter').Emitter;
 
 var e = new Emitter();
 
