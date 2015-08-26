@@ -15,7 +15,7 @@
  */
 
 // javascript shim that lets our object inherit from EventEmitter
-var Emitter = require(__dirname + '/build/Release/event-emitter.node').Emitter;
+var Emitter = require(__dirname + '/build/Release/event_emitter').Emitter;
 var events = require('events');
 
 inherits(Emitter, events.EventEmitter);

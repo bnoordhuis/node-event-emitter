@@ -16,53 +16,53 @@
 
 #include <v8.h>
 #include <node.h>
+#include <node_object_wrap.h>
 
 using namespace v8;
 using namespace node;
 
-namespace {
-
 struct Emitter: ObjectWrap {
-  static Handle<Value> New(const Arguments& args);
-  static Handle<Value> Ping(const Arguments& args);
+  static void New(const FunctionCallbackInfo<Value>& args);
+  static void Ping(const FunctionCallbackInfo<Value>& args);
 };
 
 
-Handle<Value> Emitter::New(const Arguments& args) {
-  HandleScope scope;
+void Emitter::New(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
 
   assert(args.IsConstructCall());
   Emitter* self = new Emitter();
   self->Wrap(args.This());
-
-  return scope.Close(args.This());
+  args.GetReturnValue().Set(args.This());
 }
 
 
 // emits ping event
-Handle<Value> Emitter::Ping(const Arguments& args) {
-  HandleScope scope;
+void Emitter::Ping(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
 
   Handle<Value> argv[2] = {
-    String::New("ping"), // event name
+    String::NewFromUtf8(isolate, "ping"), // event name
     args[0]->ToString()  // argument
   };
 
-  MakeCallback(args.This(), "emit", 2, argv);
-
-  return Undefined();
+  MakeCallback(isolate, args.This(), "emit", 2, argv);
 }
 
 
-extern "C" void init(Handle<Object> target) {
-  HandleScope scope;
+static v8::Persistent<v8::Function> constructor;
+void init(Handle<Object> exports) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
 
-  Local<FunctionTemplate> t = FunctionTemplate::New(Emitter::New);
+  Local<FunctionTemplate> t = FunctionTemplate::New(isolate, Emitter::New);
   t->InstanceTemplate()->SetInternalFieldCount(1);
-  t->SetClassName(String::New("Emitter"));
+  t->SetClassName(String::NewFromUtf8(isolate, "Emitter"));
   NODE_SET_PROTOTYPE_METHOD(t, "ping", Emitter::Ping);
-
-  target->Set(String::NewSymbol("Emitter"), t->GetFunction());
+  constructor.Reset(isolate, t->GetFunction());
+  exports->Set(String::NewFromUtf8(isolate, "Emitter"), t->GetFunction());
 }
 
-} // anonymous namespace
+NODE_MODULE(event_emitter, init)
