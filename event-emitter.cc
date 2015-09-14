@@ -16,6 +16,7 @@
 
 #include <v8.h>
 #include <node.h>
+#include <nan.h>
 
 using namespace v8;
 using namespace node;
@@ -23,46 +24,40 @@ using namespace node;
 namespace {
 
 struct Emitter: ObjectWrap {
-  static Handle<Value> New(const Arguments& args);
-  static Handle<Value> Ping(const Arguments& args);
+  static NAN_METHOD(New);
+  static NAN_METHOD(Ping);
 };
 
 
-Handle<Value> Emitter::New(const Arguments& args) {
-  HandleScope scope;
-
-  assert(args.IsConstructCall());
+NAN_METHOD(Emitter::New) {
+  assert(info.IsConstructCall());
   Emitter* self = new Emitter();
-  self->Wrap(args.This());
+  self->Wrap(info.This());
 
-  return scope.Close(args.This());
+  info.GetReturnValue().Set(info.This());
 }
 
 
 // emits ping event
-Handle<Value> Emitter::Ping(const Arguments& args) {
-  HandleScope scope;
-
+NAN_METHOD(Emitter::Ping) {
   Handle<Value> argv[2] = {
-    String::New("ping"), // event name
-    args[0]->ToString()  // argument
+    Nan::New("ping").ToLocalChecked(), // event name
+    info[0]->ToString()  // argument
   };
 
-  MakeCallback(args.This(), "emit", 2, argv);
-
-  return Undefined();
+  Nan::MakeCallback(info.This(), "emit", 2, argv);
 }
 
 
-extern "C" void init(Handle<Object> target) {
-  HandleScope scope;
-
-  Local<FunctionTemplate> t = FunctionTemplate::New(Emitter::New);
+extern "C" NAN_MODULE_INIT(init) {
+  Local<FunctionTemplate> t = Nan::New<FunctionTemplate>(Emitter::New);
   t->InstanceTemplate()->SetInternalFieldCount(1);
-  t->SetClassName(String::New("Emitter"));
-  NODE_SET_PROTOTYPE_METHOD(t, "ping", Emitter::Ping);
+  t->SetClassName(Nan::New("Emitter").ToLocalChecked());
+  Nan::SetPrototypeMethod(t, "ping", Emitter::Ping);
 
-  target->Set(String::NewSymbol("Emitter"), t->GetFunction());
+  Nan::Set(target, Nan::New("Emitter").ToLocalChecked(), t->GetFunction());
 }
+
+NODE_MODULE(eventemitter, init)
 
 } // anonymous namespace
