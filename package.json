@@ -1,0 +1,22 @@
+{
+  "name": "node-event-emitter",
+  "version": "1.0.0",
+  "description": "Example add-on that demonstrates how to emit events from C++ land.",
+  "main": "event-emitter.js",
+  "scripts": {
+    "install": "node-gyp rebuild"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bnoordhuis/node-event-emitter.git"
+  },
+  "gypfile": true,
+  "bugs": {
+    "url": "https://github.com/bnoordhuis/node-event-emitter/issues"
+  },
+  "homepage": "https://github.com/bnoordhuis/node-event-emitter#readme",
+  "dependencies": {
+    "bindings": "^1.2.1",
+    "nan": "^2.0.9"
+  }
+}
